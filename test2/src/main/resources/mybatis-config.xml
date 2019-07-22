@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--configuration的子元素节点有顺序限制-->
+    <properties resource="mysql.properties"></properties>
+
+    <settings>
+        <setting name="logImpl" value="LOG4J2"/>
+    </settings>
+
+    <typeAliases>
+        <typeAlias type="com.lou.mybatis.model.User" alias="User"/>
+        <typeAlias type="com.lou.mybatis.model.Account" alias="Account"/>
+        <typeAlias type="com.lou.mybatis.model.AccountCondition" alias="AccountCondition"/>
+        <typeAlias type="com.lou.mybatis.model.ManyAccounts" alias="ManyAccounts"></typeAlias>
+        <typeAlias type="com.lou.mybatis.model.UserDetail" alias="UserDetail"/>
+        <typeAlias type="com.lou.mybatis.model.ComplexUser" alias="ComplexUser"></typeAlias>
+        <typeAlias type="com.lou.mybatis.model.ComplexAccount" alias="ComplexAccount"></typeAlias>
+    </typeAliases>
+
+    <environments default="dev">
+        <environment id="dev">
+            <transactionManager type="JDBC"></transactionManager>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <!--<mapper resource="IUserMapper.xml"></mapper>-->
+        <!--这里会根据这个name.replace('.','/')来推断路径，所以要根据包名新建目录，然后把这个放在目录下。-->
+        <package name="com.lou.mybatis.mapper"/>
+    </mappers>
+
+</configuration>

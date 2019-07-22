@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lou.mybatis.mapper.IUserMapper">
+    <resultMap id="userDetailMap" type="UserDetail">
+        <id property="userId" column="id"></id>
+        <result property="userName" column="name"></result>
+        <result property="userAge" column="age"></result>
+    </resultMap>
+    <resultMap id="complexUserMap" type="ComplexUser">
+        <id property="id" column="id"></id>
+        <collection property="accounts"
+                    ofType="Account"
+                    column="id"
+                    select="com.lou.mybatis.mapper.IAccountMapper.findByUserId">
+            <id column="id" property="id"></id>
+        </collection>
+    </resultMap>
+    <resultMap id="complexUserMap2" type="ComplexUser">
+        <id property="id" column="id"></id>
+        <result property="name" column="name"></result>
+        <collection property="accounts"
+                    ofType="Accout"
+                    column="name"
+                    select="com.lou.mybatis.mapper.IAccountMapper.findByUserName">
+            <id column="id" property="id"></id>
+        </collection>
+    </resultMap>
+    <select id="allUsers" resultType="User">
+        select * from User;
+    </select>
+
+    <select id="getUserDetailById" resultMap="userDetailMap" parameterType="Integer">
+        select u.*,a.Id as accountId, a.Name as accountName, a.Money from `User` as u
+        left join Account as a on u.id = a.UserId where u.id = #{value};
+    </select>
+
+    <select id="getUserWithAccounts" resultMap="complexUserMap" parameterType="Integer">
+        select * from user where id =#{id};
+    </select>
+    <select id="getUserWithAccounts2" resultMap="complexUserMap2" parameterType="Integer">
+        select * from user where id = #{id};
+    </select>
+
+    <select id="findById" resultType="User" parameterType="Integer">
+        select * from User where id = #{id};
+    </select>
+
+</mapper>

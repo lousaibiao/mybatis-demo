@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lou.mybatis.mapper.IAccountMapper">
+    <resultMap id="accountMap" type="Account">
+        <id column="id" property="id"></id>
+        <result column="AccountType" property="accountType"
+                typeHandler="com.lou.mybatis.MyAccountTypeTypeHandler"></result>
+    </resultMap>
+
+    <resultMap id="accountWithUserMap" type="ComplexAccount">
+        <id property="id" column="id"></id>
+        <result property="userId" column="userId"></result>
+        <result property="accountType"
+                column="accountType"
+                typeHandler="com.lou.mybatis.MyAccountTypeTypeHandler"></result>
+        <association property="user"
+                     column="userId"
+                     select="com.lou.mybatis.mapper.IUserMapper.findById"
+                     javaType="User">
+            <id column="id" property="id"></id>
+        </association>
+    </resultMap>
+    <parameterMap id="accountParamMap" type="Account">
+        <parameter property="accountType"
+                   typeHandler="com.lou.mybatis.MyAccountTypeTypeHandler"></parameter>
+    </parameterMap>
+    <select id="allAccounts" resultType="Account">
+        select * from Account;
+    </select>
+
+    <select id="findAccountByCondition" resultType="Account" parameterType="AccountCondition">
+        select * from Account
+        <where>
+            <if test="userId>0">
+                and UserId = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <select id="findByIds" resultType="Account" parameterType="Integer">
+        select * from Account
+        <where>
+            <if test="arg0 >0">
+                and id = #{arg0}
+            </if>
+            <if test="arg1 >0">
+                and userId = #{arg1}
+            </if>
+        </where>
+    </select>
+
+    <select id="findById" resultType="Account" parameterType="Integer">
+        select * from Account
+        <where>
+            <if test="value >0">
+                and id = #{accountId}
+            </if>
+        </where>
+    </select>
+    <select id="findByUserId" resultMap="accountMap">
+        select * from Account where UserId = #{userId};
+    </select>
+
+    <select id="findByUserName" resultMap="accountMap" parameterType="String">
+        select * from Account where `name` = #{name};
+    </select>
+
+    <select id="findAccountWithUser" resultMap="accountWithUserMap">
+        select * from Account where id = #{id};
+    </select>
+
+
+    <insert id="addAccount" parameterType="Account" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+        <selectKey order="AFTER" resultType="int">
+            <!--resultType需要手动指定-->
+            select LAST_INSERT_ID();
+        </selectKey>
+        insert into account(`name`,userId,money,accountType)
+        values(#{name},#{userId},#{money},#{accountType,typeHandler=com.lou.mybatis.MyAccountTypeTypeHandler});
+    </insert>
+    <insert id="addAccounts" parameterType="ManyAccounts">
+        insert into account(`name`,userId,money,accountType)
+        values
+        <foreach collection="accounts" item="item" separator=",">
+            (#{item.name},#{item.userId},#{item.money},#{item.accountType,typeHandler=com.lou.mybatis.MyAccountTypeTypeHandler})
+        </foreach>
+    </insert>
+    <insert id="addAccountReturnSum" parameterType="Account" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+        <selectKey order="AFTER" resultType="BigDecimal" keyProperty="total">
+            select sum(money) from Account;
+        </selectKey>
+        insert into account(`name`,userId,money,accountType)
+        values(#{name},#{userId},#{money},#{accountType,typeHandler=com.lou.mybatis.MyAccountTypeTypeHandler});
+    </insert>
+</mapper>
